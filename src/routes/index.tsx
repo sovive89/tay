@@ -1,15 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { CalendarDays, Check, ChevronRight, Minus, Plus, Search, ShoppingBag, UserRound } from "lucide-react";
+import { CalendarDays, Check, ChevronRight, House, Minus, Plus, Search, ShoppingBag, UserRound } from "lucide-react";
 import logoAsset from "@/assets/salamandra-logo.png.asset.json";
-import bowlImage from "@/assets/cumbuca-terracota.jpg";
 import candleImage from "@/assets/vela-intencao.jpg";
+import ritualCandlesImage from "@/assets/velas-rituais.jpg";
+import cleansingKitImage from "@/assets/kit-defumacao.jpg";
 
 type View = "inicio" | "loja" | "agenda" | "clientes" | "perfil";
 
 const products = [
-  { name: "Cumbuca Terracota", category: "Cerâmica", price: "R$ 88", image: bowlImage },
-  { name: "Vela de Intenção #04", category: "Amuletos", price: "R$ 62", image: candleImage },
+  { name: "Trio de Velas Rituais", category: "Velas artesanais", price: "R$ 84", value: 84, image: ritualCandlesImage },
+  { name: "Vela Botânica", category: "Ervas & ceras", price: "R$ 68", value: 68, image: candleImage },
+  { name: "Vela de Defumação", category: "Amuletos", price: "R$ 72", value: 72, image: cleansingKitImage },
 ];
 
 const appointments = [
@@ -79,7 +81,7 @@ function HomeView({ navigate }: { navigate: (view: View) => void }) {
       </section>
 
       <section className="animate-reveal mt-12 [animation-delay:240ms]">
-        <div className="px-6 sm:px-8"><SectionTitle title="Coleção Raízes" meta="Loja (02)" /></div>
+        <div className="px-6 sm:px-8"><SectionTitle title="Coleção Raízes" meta="Loja (03)" /></div>
         <div className="no-scrollbar flex snap-x gap-4 overflow-x-auto px-6 pb-2 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-8">
           {products.map((product) => <button key={product.name} onClick={() => navigate("loja")} className="w-[68vw] max-w-[220px] flex-none snap-start text-left sm:w-auto sm:max-w-none">
             <img src={product.image} alt={product.name} className="aspect-[4/5] w-full rounded-sm object-cover" loading="lazy" width={800} height={1000} />
@@ -98,8 +100,8 @@ function HomeView({ navigate }: { navigate: (view: View) => void }) {
 }
 
 function ShopView() {
-  const [quantities, setQuantities] = useState([0, 0]);
-  const total = quantities.reduce((sum, qty, i) => sum + qty * (i === 0 ? 88 : 62), 0);
+  const [quantities, setQuantities] = useState([0, 0, 0]);
+  const total = quantities.reduce((sum, qty, i) => sum + qty * products[i].value, 0);
   const adjust = (index: number, amount: number) => setQuantities((items) => items.map((qty, i) => i === index ? Math.max(0, qty + amount) : qty));
   return <><BrandHeader label="Loja" /><main className="px-6 pb-8 pt-9 sm:px-8"><SectionTitle title="Objetos com presença" meta="Coleção 01" /><p className="mb-8 max-w-[31ch] text-sm leading-relaxed text-muted-foreground">Peças criadas em pequenos ciclos, entre argilas, ceras, ervas e intenção.</p><div className="space-y-8">{products.map((product, i) => <article key={product.name} className="grid grid-cols-[112px_minmax(0,1fr)] gap-4 border-b border-border pb-8"><img src={product.image} alt={product.name} className="aspect-[4/5] w-full rounded-sm object-cover" loading="lazy" width={800} height={1000} /><div className="flex min-w-0 flex-col"><p className="font-mono text-[8px] uppercase text-muted-foreground">{product.category}</p><h3 className="mt-2 font-display text-xl italic leading-tight">{product.name}</h3><p className="mt-2 font-mono text-[10px] text-primary">{product.price}</p><div className="mt-auto flex items-center gap-3"><button onClick={() => adjust(i, -1)} aria-label={`Remover ${product.name}`} className="grid size-8 place-items-center border border-border"><Minus className="size-3" /></button><span className="w-3 text-center font-mono text-xs">{quantities[i]}</span><button onClick={() => adjust(i, 1)} aria-label={`Adicionar ${product.name}`} className="grid size-8 place-items-center bg-foreground text-background"><Plus className="size-3" /></button></div></div></article>)}</div>{total > 0 && <div className="sticky bottom-24 mt-6 flex items-center justify-between rounded-sm bg-primary p-4 text-primary-foreground"><span className="text-xs">Sacola · {quantities.reduce((a,b)=>a+b,0)} itens</span><strong className="font-mono text-xs">R$ {total}</strong></div>}</main></>;
 }
@@ -121,7 +123,7 @@ function ProfileView() {
 }
 
 function BottomNav({ view, setView }: { view: View; setView: (view: View) => void }) {
-  const items: { id: View; label: string; icon: typeof ShoppingBag }[] = [{id:"inicio",label:"Início",icon:UserRound},{id:"loja",label:"Loja",icon:ShoppingBag},{id:"agenda",label:"Agenda",icon:CalendarDays},{id:"clientes",label:"Clientes",icon:UserRound},{id:"perfil",label:"Perfil",icon:UserRound}];
+  const items: { id: View; label: string; icon: typeof ShoppingBag }[] = [{id:"inicio",label:"Início",icon:House},{id:"loja",label:"Loja",icon:ShoppingBag},{id:"agenda",label:"Agenda",icon:CalendarDays},{id:"clientes",label:"Clientes",icon:UserRound},{id:"perfil",label:"Perfil",icon:UserRound}];
   return <nav className="fixed inset-x-0 bottom-0 z-50 mx-auto grid max-w-2xl grid-cols-5 border-t border-border bg-background/95 px-3 pb-[max(0.8rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-md">{items.map((item) => { const Icon=item.icon; const active=view===item.id; return <button key={item.id} onClick={() => setView(item.id)} className={`flex min-w-0 flex-col items-center gap-1 ${active ? "text-foreground" : "text-muted-foreground/60"}`} aria-label={item.label}><Icon className="size-4" strokeWidth={active ? 2 : 1.5}/><span className="max-w-full truncate text-[8px] font-medium uppercase">{item.label}</span></button>})}</nav>;
 }
 
